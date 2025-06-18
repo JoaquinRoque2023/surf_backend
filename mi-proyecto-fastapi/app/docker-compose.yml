@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  postgres:
+    image: postgres:15
+    container_name: surf_postgres
+    environment:
+      POSTGRES_USER: surfuser
+      POSTGRES_PASSWORD: surfpass
+      POSTGRES_DB: surf_consciente
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - surf_network
+
+  # API FastAPI
+  api:
+    build: .
+    container_name: surf_api
+    environment:
+      - DATABASE_URL=postgresql://surfuser:surfpass@postgres:5432/surf_consciente
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_USER=surfuser
+      - POSTGRES_PASSWORD=surfpass
+      - POSTGRES_DB=surf_consciente
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./app:/app/app
+    networks:
+      - surf_network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Redis para cache (opcional para futuras optimizaciones)
+  redis:
+    image: redis:7-alpine
+    container_name: surf_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - surf_network
+
+volumes:
+  postgres_data:
+
+networks:
+  surf_network:
+    driver: bridge

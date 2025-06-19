@@ -9,7 +9,7 @@ from app.schemas.movement import (
     MovementSessionCreate,
     MovementSessionResponse,
     MovementType,
-    SurfStance
+     SurfStance 
 )
 from app.services.movement_analyzer import MovementAnalyzerService
 

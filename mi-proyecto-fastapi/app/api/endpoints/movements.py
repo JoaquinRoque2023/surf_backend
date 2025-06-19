@@ -3,10 +3,7 @@ from typing import List, Dict, Any
 import structlog
 
 from app.schemas.movement import (
-    MovementType, 
-    SurfStance, 
-    MovementAnalysisRequest,
-    MovementAnalysisResponse
+    MovementType
 )
 
 logger = structlog.get_logger()

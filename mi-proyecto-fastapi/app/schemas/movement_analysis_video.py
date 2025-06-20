@@ -14,17 +14,16 @@ class MovementType(str, Enum):
     TUBE_RIDING = "tube_riding"
 
 class MovementVideoAnalysisResponse(BaseModel):
-    """Respuesta del análisis de video de movimiento"""
     movement_type: MovementType
     analysis_result: Dict[str, Any]
-    biomechanical_feedback: Dict[str, str]
-    video_url: str
+    biomechanical_feedback: Dict[str, Any]
+    video_url: Optional[str] = None  # Hacer el campo opcional con valor por defecto None
     
     class Config:
-        json_encoders = {
-            MovementType: lambda v: v.value
-        }
-
+        # Permitir campos adicionales si es necesario
+        extra = "allow"
+        # Usar enum values en la serialización
+        use_enum_values = True
 class VideoAnalysisRequest(BaseModel):
     """Request para análisis de video"""
     movement_type: MovementType

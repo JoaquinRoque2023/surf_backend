@@ -54,7 +54,127 @@ class SurfBiomechanicsAnalyzer:
                 spine_curvature_max=30,                # Torsión 25-30°
                 center_of_mass_tolerance=0.15,        # Desplazado 10-15cm interior
                 foot_separation_range=(0.3, 0.4)      # Pie trasero presiona riel
-            )
+            ),
+             MovementType.TOP_TURN: BiomechanicalProfile(
+            head_inclination_range=(60, 75),
+            shoulder_width_range=(15, 20),
+            elbow_flexion_range=(55, 65),
+            knee_flexion_range=(85, 95),
+            hip_rotation_range=(25, 35),
+            spine_curvature_max=50,
+            center_of_mass_tolerance=0.15,
+            foot_separation_range=(0.4, 0.6)
+        ),
+        MovementType.CUTBACK: BiomechanicalProfile(
+            head_inclination_range=(60, 80),
+            shoulder_width_range=(45, 55),
+            elbow_flexion_range=(60, 70),
+            knee_flexion_range=(75, 110),
+            hip_rotation_range=(15, 25),
+            spine_curvature_max=50,
+            center_of_mass_tolerance=0.2,
+            foot_separation_range=(0.5, 0.7)
+        ),
+        MovementType.FLOATER: BiomechanicalProfile(
+            head_inclination_range=(0, 10),
+            shoulder_width_range=(0, 5),
+            elbow_flexion_range=(40, 50),
+            knee_flexion_range=(120, 150),
+            hip_rotation_range=(0, 10),
+            spine_curvature_max=10,
+            center_of_mass_tolerance=0.2,
+            foot_separation_range=(0.8, 1.0)
+        ),
+         MovementType.REENTRY: BiomechanicalProfile(
+            head_inclination_range=(45, 60),
+            shoulder_width_range=(15, 20),
+            elbow_flexion_range=(55, 65),
+            knee_flexion_range=(90, 160),
+            hip_rotation_range=(90, 160),
+            spine_curvature_max=30,
+            center_of_mass_tolerance=0.1,
+            foot_separation_range=(0.7, 1.0)
+        ),
+        MovementType.SNAP: BiomechanicalProfile(
+            head_inclination_range=(40, 50),
+            shoulder_width_range=(50, 60),
+            elbow_flexion_range=(65, 75),
+            knee_flexion_range=(100, 120),
+            hip_rotation_range=(15, 30),
+            spine_curvature_max=20,
+            center_of_mass_tolerance=0.2,
+            foot_separation_range=(0.5, 0.7)
+        ),
+        MovementType.CARVING: BiomechanicalProfile(
+            head_inclination_range=(30, 45),
+            shoulder_width_range=(20, 30),
+            elbow_flexion_range=(25, 35),
+            knee_flexion_range=(90, 100),
+            hip_rotation_range=(25, 35),
+            spine_curvature_max=25,
+            center_of_mass_tolerance=0.1,
+            foot_separation_range=(0.7, 1.0)
+        ),
+        MovementType.ROUNDHOUSE_CUTBACK: BiomechanicalProfile(
+            head_inclination_range=(70, 90),
+            shoulder_width_range=(45, 55),
+            elbow_flexion_range=(75, 85),
+            knee_flexion_range=(80, 150),
+            hip_rotation_range=(80, 160),
+            spine_curvature_max=50,
+            center_of_mass_tolerance=0.1,
+            foot_separation_range=(0.6, 0.9)
+        ),
+        MovementType.FOAM_CLIMB: BiomechanicalProfile(
+            head_inclination_range=(0, 0),
+            shoulder_width_range=(0, 5),
+            elbow_flexion_range=(40, 50),
+            knee_flexion_range=(80, 150),
+            hip_rotation_range=(90, 110),
+            spine_curvature_max=10,
+            center_of_mass_tolerance=0.1,
+            foot_separation_range=(0.8, 1.0)
+        ),
+        MovementType.CLOSEOUT_REENTRY: BiomechanicalProfile(
+            head_inclination_range=(30, 40),
+            shoulder_width_range=(50, 60),
+            elbow_flexion_range=(55, 65),
+            knee_flexion_range=(80, 90),
+            hip_rotation_range=(90, 110),
+            spine_curvature_max=15,
+            center_of_mass_tolerance=0.1,
+            foot_separation_range=(0.7, 1.0)
+        ),
+        MovementType.TAIL_SLIDE: BiomechanicalProfile(
+            head_inclination_range=(30, 40),
+            shoulder_width_range=(30, 40),
+            elbow_flexion_range=(50, 60),
+            knee_flexion_range=(80, 130),
+            hip_rotation_range=(65, 75),
+            spine_curvature_max=25,
+            center_of_mass_tolerance=0.25,
+            foot_separation_range=(0.5, 0.7)
+        ),
+         MovementType.AGARRAR_VELOCIDAD: BiomechanicalProfile(
+            head_inclination_range=(0, 5),
+            shoulder_width_range=(10, 15),
+            elbow_flexion_range=(15, 25),
+            knee_flexion_range=(95, 140),
+            hip_rotation_range=(20, 30),
+            spine_curvature_max=10,
+            center_of_mass_tolerance=0.05,
+            foot_separation_range=(0.7, 1.0)
+        ),
+        MovementType.VELOCIDAD_HORIZONTAL: BiomechanicalProfile(
+            head_inclination_range=(0, 0),
+            shoulder_width_range=(0, 5),
+            elbow_flexion_range=(0, 10),
+            knee_flexion_range=(110, 130),
+            hip_rotation_range=(90, 110),
+            spine_curvature_max=10,
+            center_of_mass_tolerance=0.15,
+            foot_separation_range=(0.8, 1.0)
+        ),
         }
 
 
@@ -285,6 +405,32 @@ def analyze_frame_biomechanics(
         
         # 9. Separación de pies
         analysis['foot_separation_ratio'] = calculator.calculate_foot_separation_ratio(landmarks)
+
+        # 10. Análisis del torso respecto a la base (nuevo)
+        left_foot = landmarks[31]
+        right_foot = landmarks[32]
+        left_shoulder = landmarks[11]
+        right_shoulder = landmarks[12]
+        if all([left_foot, right_foot, left_shoulder, right_shoulder]):
+            base_x_min = min(left_foot.x, right_foot.x)
+            base_x_max = max(left_foot.x, right_foot.x)
+            torso_x = (left_shoulder.x + right_shoulder.x) / 2
+            base_width = abs(base_x_max - base_x_min)
+            margin = base_width * 0.05
+            analysis['torso_out_of_base'] = not (base_x_min - margin <= torso_x <= base_x_max + margin)
+            analysis['torso_base_margin'] = margin
+            analysis['torso_x'] = torso_x
+            analysis['base_x_min'] = base_x_min
+            analysis['base_x_max'] = base_x_max
+
+            # Inclinación de la tabla (base) y del torso
+            tabla_angle = np.degrees(np.arctan2(right_foot.y - left_foot.y, right_foot.x - left_foot.x))
+            torso_angle = np.degrees(np.arctan2(right_shoulder.y - left_shoulder.y, right_shoulder.x - left_shoulder.x))
+            angle_diff = abs(tabla_angle - torso_angle)
+            analysis['torso_table_angle_diff'] = angle_diff
+            analysis['tabla_angle'] = tabla_angle
+            analysis['torso_angle'] = torso_angle
+            analysis['torso_parallel_to_table'] = angle_diff <= 5.0  # margen de 5 grados
         
     except Exception as e:
         print(f"Error en análisis de frame: {str(e)}")
@@ -478,6 +624,28 @@ def evaluate_against_profile(
                     }
                     issues.append(f"Centro de masa muy centrado para giro: {center.x:.2f} (objetivo: desplazado 0.2-0.4)")
     
+    # 9. Evaluar si el torso está fuera de la base
+    if 'torso_out_of_base' in measurements:
+        if measurements['torso_out_of_base']:
+            deviations['torso_out_of_base'] = {
+                'current': measurements.get('torso_x', 0),
+                'base_x_min': measurements.get('base_x_min', 0),
+                'base_x_max': measurements.get('base_x_max', 0),
+                'margin': measurements.get('torso_base_margin', 0),
+                'deviation': abs(measurements.get('torso_x', 0) - ((measurements.get('base_x_min', 0) + measurements.get('base_x_max', 0)) / 2))
+            }
+            issues.append("El torso se sale de la base de los pies (alineación lateral incorrecta).")
+
+    # 10. Evaluar si el torso está paralelo a la tabla
+    if 'torso_parallel_to_table' in measurements:
+        if not measurements['torso_parallel_to_table']:
+            deviations['torso_table_alignment'] = {
+                'current': measurements.get('torso_angle', 0),
+                'tabla_angle': measurements.get('tabla_angle', 0),
+                'deviation': measurements.get('torso_table_angle_diff', 0)
+            }
+            issues.append("El torso no está alineado (paralelo) con la inclinación de la tabla.")
+   
     return issues, deviations
 
 def generate_recommendations(deviations: Dict, movement_type: MovementType) -> List[str]:
@@ -655,6 +823,17 @@ def generate_recommendations(deviations: Dict, movement_type: MovementType) -> L
             "✅ ¡Excelente técnica! Tu postura está dentro de los rangos ideales. "
             "Sigue manteniendo esta forma y enfócate en la fluidez del movimiento."
         )
+    # Recomendación para torso fuera de la base
+    if 'torso_out_of_base' in deviations:
+        recommendations.append(
+            "🔸 ALINEACIÓN DEL TORSO: Mantén el torso dentro de la base formada por los pies. Evita inclinarte lateralmente fuera de la tabla para mejorar el equilibrio y control."
+        )
+
+    # Recomendación para torso no paralelo a la tabla
+    if 'torso_table_alignment' in deviations:
+        recommendations.append(
+            "🔸 PARALELISMO TORSO-TABLA: Ajusta la inclinación del torso para que siga el ángulo de la tabla. El cuerpo debe acompañar la inclinación de la tabla para mayor estabilidad."
+        )    
     
     return recommendations
 def calculate_biomechanical_score(deviations: Dict) -> float:
@@ -698,30 +877,151 @@ def get_biomechanical_profile(movement_type: MovementType) -> dict:
     """
     analyzer = SurfBiomechanicsAnalyzer()
     profile = analyzer.profiles[movement_type]
-    
+
     detailed_profiles = {
         MovementType.TAKE_OFF: {
-            "Cabeza/Cuello": f"Mirada al frente, inclinación {profile.head_inclination_range[0]}–{profile.head_inclination_range[1]}°",
-            "Hombros": f"Abiertos {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°, escápulas retraídas",
-            "Codos": f"Flexión {profile.elbow_flexion_range[0]}°–{profile.elbow_flexion_range[1]}°, pegados al torso",
-            "Rodillas": f"Semiflexión {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}°",
-            "Cadera": "Posición neutra, activación del core",
-            "Columna": f"Extendida, curvatura máxima {profile.spine_curvature_max}°",
-            "Pies": f"Separación {profile.foot_separation_range[0]:.1f}-{profile.foot_separation_range[1]:.1f}x ancho de hombros",
-            "Centro de Masa": "Centrado entre ambos pies"
+            "Cabeza/CCuello": f"Mirada al frente, inclinación {profile.head_inclination_range[0]}–{profile.head_inclination_range[1]}° respecto al horizonte.",
+            "Hombros": f"Abiertos {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°, escápulas retraídas y bajas.",
+            "Codos": f"Flexión {profile.elbow_flexion_range[0]}°–{profile.elbow_flexion_range[1]}°, pegados al torso.",
+            "Columna Torácica": f"Extendida, pecho elevado, sin curvar.",
+            "Zona Lumbar/Caderas": "Elevación simultánea con hombros, alineación hombro-cadera.",
+            "Rodillas": f"Semiflexión {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}°.",
+            "Pies": f"Delantero 40°–50°, trasero 15°–25°, separados {profile.foot_separation_range[0]:.1f}-{profile.foot_separation_range[1]:.1f}x ancho de hombros.",
+            "Centro de Masa": "Dentro de la base entre ambos pies.",
+            "Brazos": "Derecho: empujón y estabilización 50°–60°; Izquierdo: estabiliza 25°–35° lateral."
         },
         MovementType.BOTTOM_TURN: {
-            "Cabeza/Cuello": f"Giro {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° hacia la curva",
-            "Hombros": "Alineación con la dirección del giro",
-            "Codos": f"Derecho: empujón {profile.elbow_flexion_range[0]}°–{profile.elbow_flexion_range[1]}°; Izquierdo: estabilización",
-            "Rodillas": f"Delantera {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]//2}°; Trasera {profile.knee_flexion_range[1]//2}°–{profile.knee_flexion_range[1]}°",
-            "Cadera": f"Rotación interna {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}°",
-            "Columna": f"Torsión controlada máxima {profile.spine_curvature_max}°",
-            "Pies": "Pie trasero presiona riel interno; delantero estabiliza",
-            "Centro de Masa": f"Desplazado {profile.center_of_mass_tolerance*100:.0f}cm hacia interior del giro"
+            "Cabeza/Cuello": f"Giro {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° hacia la curva.",
+            "Hombros": f"Delantero baja 10°–15°, trasero eleva 10°–15°.",
+            "Columna Torácica": f"Torsión {profile.spine_curvature_max}° en el plano horizontal.",
+            "Caderas": f"Rotación interna {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}°.",
+            "Rodillas": f"Delantera 100°–110°; Trasera 120°–130°.",
+            "Pies": "Trasero presiona riel interno; delantero estabiliza con 30%–40% peso.",
+            "Centro de Masa": f"Bajo, desplazado {profile.center_of_mass_tolerance*100:.0f}cm hacia interior del giro.",
+            "Brazos": "Derecho: 40°–50° al giro; Izquierdo: 20°–30° abajo como contrapeso."
+        },
+        MovementType.TOP_TURN: {
+            "Cabeza/Cuello": f"Rotación {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° hacia la bajada.",
+            "Hombros": f"Delantero baja 15°–20°, trasero eleva 15°–20°.",
+            "Columna Torácica": f"Torsión sincronizada 40°–50°.",
+            "Caderas": f"Giro 25°–35°, cadera trasera eleva 10°–15°.",
+            "Rodillas": f"Flexión 85°–95° para cargar; extensión rápida al salir.",
+            "Pies": "Trasero carga 60%–70% de peso sobre riel externo.",
+            "Centro de Masa": "Transferencia 10%–15% hacia pie trasero.",
+            "Brazos": "Derecho: alzado 55°–65° hacia la ola; Izquierdo: abierto 25°–35° atrás."
+        },
+        MovementType.CUTBACK: {
+            "Cabeza/Cuello": f"Giro anticipado {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° hacia la espuma.",
+            "Hombros": f"Delantero gira 45°–55°; trasero abre 30°–40°.",
+            "Columna Torácica": f"Torsión prolongada 40°–50°.",
+            "Caderas": f"Retracción 20°–25° trasera; avance 15°–20° delantera.",
+            "Rodillas": f"Delantera 75°–85°; trasera 100°–110°.",
+            "Pies": "Pivote en trasero, delantero acompaña arco con 20% peso.",
+            "Centro de Masa": "10%–20% desplazado hacia trasero.",
+            "Brazos": "Derecho: envolvente 60°–70°; Izquierdo: desciende 20°–30°."
+        },
+        MovementType.FLOATER: {
+            "Cabeza/Cuello": f"Neutro {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° al frente.",
+            "Hombros": f"Nivelados {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": "Alineada con tabla, sin torsión.",
+            "Caderas": f"Mínima rotación <10°.",
+            "Rodillas": f"Semiflexión {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}°.",
+            "Pies": "Distribución 50/50, microajustes de <5°.",
+            "Centro de Masa": "10–20 cm sobre la tabla.",
+            "Brazos": "Derecho e Izquierdo: semi-elevados 40°–50° para estabilizar."
+        },
+        MovementType.REENTRY: {
+            "Cabeza/Cuello": f"Giro rápido {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}° antes del giro.",
+            "Hombros": f"Delantero baja 15°–20°, trasero eleva 15°–20°.",
+            "Columna Torácica": f"Extensión 10°–15° previa y torsión 30°.",
+            "Caderas": f"Extensión 140°–160° al subir; flexión 90°–110° al aterrizar.",
+            "Rodillas": f"Extensión completa 160°; compresión 90°–100°.",
+            "Pies": "Aterrizaje 50%–50% presión.",
+            "Centro de Masa": "Vertical alineado con tabla.",
+            "Brazos": "Derecho: desciende 55°–65°; Izquierdo: mantiene 25°–35°."
+        },
+        MovementType.SNAP: {
+            "Cabeza/Cuello": f"Explosivo giro {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Rotación rápida {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": "Giro y liberación en <0.3s.",
+            "Caderas": f"Contrarrotación 15°–20° inicial, luego 30°.",
+            "Rodillas": f"Flexión reactiva {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}°.",
+            "Pies": "Pivote trasero, carga 60%–70% peso.",
+            "Centro de Masa": "Dinámico hacia trasero.",
+            "Brazos": "Derecho: corta aire 65°–75°; Izquierdo: retrae 20°–30°."
+        },
+        MovementType.CARVING: {
+            "Cabeza/Cuello": f"Giro leve {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Flexión {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": f"Torsión continua 15°–25°.",
+            "Caderas": f"Rotación {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}°.",
+            "Rodillas": f"Flexión {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}° adaptativa.",
+            "Pies": "60%–40% distribución peso.",
+            "Centro de Masa": "Bajo y alineado.",
+            "Brazos": "Derecho: avanza 25°–35°; Izquierdo: equilibra 15°–25°."
+        },
+        MovementType.ROUNDHOUSE_CUTBACK: {
+            "Cabeza/Cuello": f"Giro amplio {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Abiertos {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": f"Torsión sostenida 40°–50°.",
+            "Caderas": f"Compresión 80°–90°; extensión 150°–160°.",
+            "Rodillas": f"80° compresión; 140°–150° extensión.",
+            "Pies": "Pivote y liberación sincronizada.",
+            "Centro de Masa": "Bajo 5–10 cm.",
+            "Brazos": "Derecho: eleva 75°–85°; Izquierdo: baja 25°–35°."
+        },
+        MovementType.FOAM_CLIMB: {
+            "Cabeza/Cuello": f"Neutro {profile.head_inclination_range[0]}°.",
+            "Hombros": "Nivelados.",
+            "Columna Torácica": "Estable.",
+            "Caderas": f"Flexión {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}° al ascenso.",
+            "Rodillas": f"Compresión 80°–90°; extensión 140°–150°.",
+            "Pies": "Dorsiflexión 10°; empuje punta.",
+            "Centro de Masa": "Adelantado 5%–10%.",
+            "Brazos": "Derecho: extiende 40°–50°; Izquierdo: lateral 25°–35°."
+        },
+        MovementType.CLOSEOUT_REENTRY: {
+            "Cabeza/Cuello": f"Anticipación {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Giro intenso {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": f"Extensión 15°; compresión 80°–90°.",
+            "Caderas": f"Flexión {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}° al aterrizar.",
+            "Rodillas": f"Compresión 80°–90°.",
+            "Pies": "Presión equitativa.",
+            "Centro de Masa": "Bajo.",
+            "Brazos": "Derecho: impulsa 55°–65°; Izquierdo: estabiliza 25°–35°."
+        },
+        MovementType.TAIL_SLIDE: {
+            "Cabeza/Cuello": f"Giro {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Torsión {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": f"Flexión lateral 15°–25°.",
+            "Caderas": f"Pie trasero carga 65%–75% peso.",
+            "Rodillas": f"Trasera 110°–130°; Delantera 80°–100°.",
+            "Pies": "Tail presiona 35°–45° de riel.",
+            "Centro de Masa": "Desplazado 15%–25% atrás.",
+            "Brazos": "Derecho: inicia 50°–60°; Izquierdo: baja 30°–40°."
+        },
+         MovementType.AGARRAR_VELOCIDAD: {
+            "Cabeza/Cuello": f"Fija, {profile.head_inclination_range[0]}°–{profile.head_inclination_range[1]}°.",
+            "Hombros": f"Oscilan {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": "Vertical oscila 10°.",
+            "Caderas": f"Flexión-extensión {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}°.",
+            "Rodillas": f"95°–105° compresión y 130°–140° extensión.",
+            "Pies": "Talón-punta 60%-40% transferencia.",
+            "Centro de Masa": "Oscilación mínima 5 cm.",
+            "Brazos": "Sube y baja 15°–25°."
+        },
+        MovementType.VELOCIDAD_HORIZONTAL: {
+            "Cabeza/Cuello": f"Neutro {profile.head_inclination_range[0]}°.",
+            "Hombros": f"Paralelos, {profile.shoulder_width_range[0]}°–{profile.shoulder_width_range[1]}°.",
+            "Columna Torácica": "Alineada.",
+            "Caderas": f"Flexión {profile.hip_rotation_range[0]}°–{profile.hip_rotation_range[1]}°.",
+            "Rodillas": f"Semiflexión {profile.knee_flexion_range[0]}°–{profile.knee_flexion_range[1]}°.",
+            "Pies": "Distribución estable 50/50.",
+            "Centro de Masa": "Bajo 10–15 cm.",
+            "Brazos": "Relajados junto al torso, <10° movimiento."
         }
     }
-    
+
     return detailed_profiles.get(movement_type, {
         "General": "Perfil biomecánico no disponible para este movimiento"
     })

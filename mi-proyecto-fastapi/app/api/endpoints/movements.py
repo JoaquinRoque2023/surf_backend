@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 import structlog
+from app.schemas.movement_analysis_video import MovementType as VideoMovementType
 
 from app.schemas.movement import (
     MovementType
@@ -71,9 +72,119 @@ async def get_movement_types():
                 "Flexión al aterrizar",
                 "Control del centro de masa"
             ]
+        },
+        MovementType.REENTRY: {
+            "name": "Reentry",
+            "description": "Reentrada en la ola tras un giro",
+            "level": "Intermedio",
+            "key_points": [
+                "Giro rápido de cabeza",
+                "Extensión y compresión de rodillas",
+                "Aterrizaje equilibrado",
+                "Control de brazos"
+            ]
+        },
+        MovementType.SNAP: {
+            "name": "Snap",
+            "description": "Giro brusco y corto en la cresta de la ola",
+            "level": "Avanzado",
+            "key_points": [
+                "Explosividad en el giro",
+                "Transferencia rápida de peso",
+                "Control de la tabla en el borde",
+                "Recuperación rápida tras el giro"
+            ]
+        },
+        MovementType.CARVING: {
+            "name": "Carving",
+            "description": "Giro amplio y fluido",
+            "level": "Intermedio",
+            "key_points": [
+                "Giro leve de cabeza",
+                "Flexión de hombros",
+                "Rotación de caderas",
+                "Distribución de peso 60/40"
+            ]
+        },
+        MovementType.ROUNDHOUSE_CUTBACK: {
+            "name": "Roundhouse Cutback",
+            "description": "Cutback circular",
+            "level": "Avanzado",
+            "key_points": [
+                "Giro amplio de cabeza",
+                "Torsión sostenida de torso",
+                "Compresión y extensión de caderas",
+                "Pivote sincronizado"
+            ]
+        },
+        MovementType.FOAM_CLIMB: {
+            "name": "Foam Climb",
+            "description": "Subir por la espuma de la ola",
+            "level": "Intermedio",
+            "key_points": [
+                "Flexión de rodillas al subir",
+                "Centro de masa bajo",
+                "Mirada hacia adelante",
+                "Control de la velocidad al descender"
+            ]
+        },
+        MovementType.CLOSEOUT_REENTRY: {
+            "name": "Closeout Reentry",
+            "description": "Reentrada en secciones cerradas de la ola",
+            "level": "Avanzado",
+            "key_points": [
+                "Sincronización precisa",
+                "Extensión rápida al impactar",
+                "Aterrizaje controlado",
+                "Preparación para posible caída"
+            ]
+        },
+        MovementType.TAIL_SLIDE: {
+            "name": "Tail Slide",
+            "description": "Deslizamiento del tail de la tabla",
+            "level": "Avanzado",
+            "key_points": [
+                "Transferencia de peso al tail",
+                "Rotación explosiva de caderas",
+                "Control de la tabla en el giro",
+                "Recuperación tras el deslizamiento"
+            ]
+        },
+        MovementType.AGARRAR_VELOCIDAD: {
+            "name": "Agarrar Velocidad",
+            "description": "Generar velocidad bombeando la tabla",
+            "level": "Principiante-Intermedio",
+            "key_points": [
+                "Flexión y extensión alternada de piernas",
+                "Movimientos coordinados de brazos",
+                "Mantener el centro de masa bajo",
+                "Sincronización con la ola"
+            ]
+        },
+        MovementType.VELOCIDAD_HORIZONTAL: {
+            "name": "Velocidad Horizontal",
+            "description": "Mantener velocidad a lo largo de la ola",
+            "level": "Principiante",
+            "key_points": [
+                "Posición estable sobre la tabla",
+                "Distribución uniforme del peso",
+                "Mirada hacia la dirección del recorrido",
+                "Ajuste de postura según la sección de la ola"
+            ]
         }
         # Agregar más movimientos según necesidad
     }
+
+    # Integrar movimientos adicionales desde movement_analysis_video si existen
+    if hasattr(VideoMovementType, "__members__"):
+        for video_movement in VideoMovementType:
+            if video_movement not in movement_descriptions:
+                movement_descriptions[video_movement] = {
+                    "name": video_movement.value.replace("_", " ").title(),
+                    "description": f"Análisis de movimiento {video_movement.value}",
+                    "level": "Avanzado",
+                    "key_points": []
+                }
     
     result = []
     for movement_type in MovementType:

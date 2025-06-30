@@ -9,9 +9,15 @@ class MovementType(str, Enum):
     TOP_TURN = "top_turn"
     CUTBACK = "cutback"
     FLOATER = "floater"
+    REENTRY = "reentry"
     SNAP = "snap"
-    AERIAL = "aerial"
-    TUBE_RIDING = "tube_riding"
+    CARVING = "carving"
+    ROUNDHOUSE_CUTBACK = "roundhouse_cutback"
+    FOAM_CLIMB = "foam_climb"
+    CLOSEOUT_REENTRY = "closeout_reentry"
+    TAIL_SLIDE = "tail_slide"
+    AGARRAR_VELOCIDAD = "agarrar_velocidad"
+    VELOCIDAD_HORIZONTAL = "velocidad_horizontal"
 
 class MovementVideoAnalysisResponse(BaseModel):
     movement_type: MovementType
